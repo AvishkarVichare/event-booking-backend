@@ -5,10 +5,20 @@ exports.createEventController = async (req, res) => {
 
     if ((req.user.role !== 'admin'))
       throw new Error("only admin can access");
+      // console.log(req.file)
 
+      const image = {
+        filename: req.file.originalname,
+        data: req.file.path
+      }
 
     const { eventName, eventHost, eventBranch, eventDate, eventTime, eventVenue, eventType } = req.body;
 
+
+
+    // const upImage = req.file
+    // console.log(upImage)
+    // const base64Image = Buffer.from(upImage.data).toString('base64');
 
 
     const event = await Event.create({
@@ -19,7 +29,7 @@ exports.createEventController = async (req, res) => {
       eventTime,
       eventVenue,
       eventType,
-      image: req.file.path
+      image
     });
 
     res.json({
