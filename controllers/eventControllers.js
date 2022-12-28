@@ -9,6 +9,8 @@ exports.createEventController = async (req, res) => {
 
     const { eventName, eventHost, eventBranch, eventDate, eventTime, eventVenue, eventType } = req.body;
 
+
+
     const event = await Event.create({
       eventName,
       eventHost,
@@ -16,7 +18,8 @@ exports.createEventController = async (req, res) => {
       eventDate,
       eventTime,
       eventVenue,
-      eventType
+      eventType,
+      image: req.file.path
     });
 
     res.json({

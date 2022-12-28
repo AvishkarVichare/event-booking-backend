@@ -6,7 +6,6 @@ const User = require('../models/User.Schema')
 exports.signUpUserController = async (req, res) => {
   try {
     const { name, email, username, password, phone, div, studentid, branch } = req.body;
-    console.log(req.body)
 
     const salt = await bcrypt.genSalt(10);
     const secretPassword = await bcrypt.hash(password, salt);
@@ -25,7 +24,7 @@ exports.signUpUserController = async (req, res) => {
     });
 
 
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET);
 
     res.json({
       token,
@@ -54,7 +53,7 @@ exports.loginUserController = async (req, res) => {
       return res.status(401).json({ message: 'Email or password is incorrect' });
     }
 
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET);
 
     res.json({
       token,

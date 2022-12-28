@@ -32,7 +32,10 @@ const eventSchema = new mongoose.Schema({
   bookedUsers: [{
     type: mongoose.Types.ObjectId,
     ref: 'User'
-  }]
+  }],
+  image: {
+    type: String,
+  }
 });
 
 module.exports = mongoose.model('Event', eventSchema);
