@@ -34,7 +34,8 @@ const eventSchema = new mongoose.Schema({
     ref: 'User'
   }],
   image: {
-    type: String,
+    filename: String,
+    data: Buffer
   }
 });
 
