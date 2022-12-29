@@ -67,3 +67,23 @@ exports.loginUserController = async (req, res) => {
     });
   }
 }
+
+exports.getUserController = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id)
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    } else {
+      res.json({
+        message: 'success',
+        user: user
+      })
+    }
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message
+    })
+  }
+
+}
