@@ -21,6 +21,10 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  eventPrice: {
+    type: String,
+    required: true
+  },
   eventVenue: {
     type: String,
     required: true

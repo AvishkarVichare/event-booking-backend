@@ -5,12 +5,12 @@ exports.createEventController = async (req, res) => {
 
     if ((req.user.role !== 'admin'))
       throw new Error("only admin can access");
-      // console.log(req.file)
+    // console.log(req.file)
 
-      const image = {
-        filename: req.file.originalname,
-        data: req.file.path
-      }
+    const image = {
+      filename: req.file.originalname,
+      data: req.file.path
+    }
 
     const { eventName, eventHost, eventBranch, eventDate, eventTime, eventVenue, eventType } = req.body;
 
@@ -93,6 +93,11 @@ exports.bookEventController = async (req, res) => {
 
     if (!event)
       throw new Error("no such event");
+
+    const payment = await instance.payments.capture(req.body.paymentId, req.body.amount);
+    if (payment.status !== 'captured') {
+      throw new Error('Payment failed');
+    }
 
     if (event.bookedUsers.includes(req.user.id))
       throw new Error("You have already booked for this");
