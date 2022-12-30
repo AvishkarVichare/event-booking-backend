@@ -9,6 +9,10 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  eventDescription: {
+    type: String,
+    required: true
+  },
   eventBranch: {
     type: String,
     required: true
@@ -19,6 +23,10 @@ const eventSchema = new mongoose.Schema({
   },
   eventTime: {
     type: String,
+    required: true
+  },
+  eventPrice: {
+    type: Number,
     required: true
   },
   eventVenue: {
@@ -37,6 +45,8 @@ const eventSchema = new mongoose.Schema({
     filename: String,
     data: Buffer
   }
+},{
+  timestamps:true
 });
 
 module.exports = mongoose.model('Event', eventSchema);

@@ -5,14 +5,14 @@ exports.createEventController = async (req, res) => {
 
     if ((req.user.role !== 'admin'))
       throw new Error("only admin can access");
-      // console.log(req.file)
+    // console.log(req.file)
 
-      const image = {
-        filename: req.file.originalname,
-        data: req.file.path
-      }
+    const image = {
+      filename: req.file.originalname,
+      data: req.file.path
+    }
 
-    const { eventName, eventHost, eventBranch, eventDate, eventTime, eventVenue, eventType } = req.body;
+    const { eventName, eventHost, eventDescription, eventBranch, eventDate, eventTime, eventVenue, eventType, eventPrice } = req.body;
 
 
 
@@ -24,11 +24,13 @@ exports.createEventController = async (req, res) => {
     const event = await Event.create({
       eventName,
       eventHost,
+      eventDescription,
       eventBranch,
       eventDate,
       eventTime,
       eventVenue,
       eventType,
+      eventPrice,
       image
     });
 
@@ -49,7 +51,7 @@ exports.createEventController = async (req, res) => {
 
 exports.getEventsController = async (req, res) => {
   try {
-    const events = await Event.find();
+    const events = await Event.find().sort({ field: 'asc', _id: -1 });
 
     res.json({
       events,
@@ -64,6 +66,49 @@ exports.getEventsController = async (req, res) => {
   }
 }
 
+exports.editEventController = async (req, res)=>{
+  try{
+
+    if(req.user.role!=='admin')
+      throw new Error("only admin can perform");
+
+      const updates = req.body;
+
+      console.log(req.body)
+
+    const event = await  Event.findByIdAndUpdate(req.params.eid, updates, {new: true})  
+
+    res.status(200).json({
+      event,
+      success:true,
+      message: "edited successfully"
+    })
+  }
+  catch(err){
+    res.status(500).json({message: 'Error editing event', err});
+  }
+}
+
+exports.deleteEventController= async(req, res) => {
+  try {
+
+    if(req.user.role!=='admin')
+      throw new Error("only admin can perform");
+
+
+    const eventId = req.params.eid;
+    const event = Event.findByIdAndDelete(eventId, (error) => {
+      if (error) {
+        throw error;
+      }
+      res.json({
+        success:true,
+        message: 'Event successfully deleted'});
+    });
+  } catch (error) {
+    res.status(500).json({message: 'Error deleting event'});
+  }
+}
 
 exports.getEventByIdController = async (req, res) => {
   try {
@@ -90,10 +135,30 @@ exports.getEventByIdController = async (req, res) => {
 exports.bookEventController = async (req, res) => {
   try {
     const event = await Event.findById(req.params.eveId);
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
     if (!event)
       throw new Error("no such event");
 
+    //  payment verify 
+
+    let body = razorpay_order_id + "|" + razorpay_payment_id;
+
+    var crypto = require("crypto");
+    var expectedSignature = crypto.createHmac('sha256', process.env.RAZORPAY_SECRET)
+      .update(body.toString())
+      .digest('hex');
+    console.log("sig received ", razorpay_signature);
+    console.log("sig generated ", expectedSignature);
+
+    // var response = { "signatureIsValid": "false" }
+
+    if (expectedSignature !== razorpay_signature)
+      throw new Error("Can't book without payment!")
+
+    // response = { "signatureIsValid": "true" }
+
+    // booking starts 
     if (event.bookedUsers.includes(req.user.id))
       throw new Error("You have already booked for this");
 
@@ -114,8 +179,6 @@ exports.bookEventController = async (req, res) => {
     });
   }
 }
-
-
 
 exports.unBookEventController = async (req, res) => {
   try {
@@ -147,4 +210,25 @@ exports.unBookEventController = async (req, res) => {
   }
 }
 
+exports.getUserBookedEvents = async (req, res) => {
+  try {
+    const events = await Event.find({ bookedUsers: req.user.id }).sort({ field: 'asc', _id: -1 })
 
+
+        res.json(
+          {
+            success: true,
+            message:"retrived succesfully",
+            events
+          }
+        )
+      
+    
+  }
+  catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  }
+}

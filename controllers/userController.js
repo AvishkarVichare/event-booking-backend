@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User.Schema')
+const Event = require('../models/Events.Shcema');
 
 
 exports.signUpUserController = async (req, res) => {
@@ -66,4 +67,51 @@ exports.loginUserController = async (req, res) => {
       message: err.message
     });
   }
+}
+
+exports.getUserController = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id)
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    } else {
+      res.json({
+        message: 'success',
+        user: user
+      })
+    }
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message
+    })
+  }
+
+}
+
+exports.getUsersWhoBookedEvent = async(req, res)=>{
+  try{
+    if(req.user.role!=='admin')
+    throw new Error("only admin can access");
+
+    const event = await Event.findById(req.params.eid).populate('bookedUsers')
+        // console.log(event.bookedUsers); 
+
+        // console.log("first", event)
+
+        res.json({
+          success:true,
+          message: "users retrived",
+          users: event.bookedUsers
+        })
+      
+    
+  }
+  catch(err){
+    res.status(500).json({
+      success: false,
+      message: err.message
+    })
+  }
+
 }
