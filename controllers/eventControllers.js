@@ -66,33 +66,58 @@ exports.getEventsController = async (req, res) => {
   }
 }
 
-exports.editEventController = async (req, res)=>{
-  try{
+exports.editEventInfoController = async (req, res) => {
+  try {
 
-    if(req.user.role!=='admin')
+    if (req.user.role !== 'admin')
       throw new Error("only admin can perform");
 
-      const updates = req.body;
+    const updates = req.body;
+    console.log(updates)
+      const event = await Event.findByIdAndUpdate(req.params.eid, updates, { new: true })
+      return res.json({
+        success: true,
+        message: "event info edited successfully"
+      })
 
-      console.log(req.body)
+   
+  }
+  catch (err) {
+    res.status(500).json({ message: 'Error editing event', err: err.message });
+  }
+}
+exports.editEventImgController = async (req, res) => {
+  try {
 
-    const event = await  Event.findByIdAndUpdate(req.params.eid, updates, {new: true})  
+    if (req.user.role !== 'admin')
+      throw new Error("only admin can perform");
+
+    const updates = req.body;
+    console.log("This is image", updates.image)
+
+    const image = {
+      filename: req.file.originalname,
+      data: req.file.path
+    }
+
+    // console.log({updates:req.body})
+
+    const event = await Event.findByIdAndUpdate(req.params.eid, { ...updates, image }, { new: true })
 
     res.status(200).json({
-      event,
-      success:true,
+      success: true,
       message: "edited successfully"
     })
   }
-  catch(err){
-    res.status(500).json({message: 'Error editing event', err});
+  catch (err) {
+    res.status(500).json({ message: 'Error editing event', err: err.message });
   }
 }
 
-exports.deleteEventController= async(req, res) => {
+exports.deleteEventController = async (req, res) => {
   try {
 
-    if(req.user.role!=='admin')
+    if (req.user.role !== 'admin')
       throw new Error("only admin can perform");
 
 
@@ -102,11 +127,12 @@ exports.deleteEventController= async(req, res) => {
         throw error;
       }
       res.json({
-        success:true,
-        message: 'Event successfully deleted'});
+        success: true,
+        message: 'Event successfully deleted'
+      });
     });
   } catch (error) {
-    res.status(500).json({message: 'Error deleting event'});
+    res.status(500).json({ message: 'Error deleting event' });
   }
 }
 
@@ -215,17 +241,35 @@ exports.getUserBookedEvents = async (req, res) => {
     const events = await Event.find({ bookedUsers: req.user.id }).sort({ field: 'asc', _id: -1 })
 
 
-        res.json(
-          {
-            success: true,
-            message:"retrived succesfully",
-            events
-          }
-        )
-      
-    
+    res.json(
+      {
+        success: true,
+        message: "retrived succesfully",
+        events
+      }
+    )
+
+
   }
   catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  }
+}
+
+exports.searchEventsController = async (req, res)=>{
+  try{
+      const searchTerm = req.query.search;
+     const events = await Event.find({eventName: {$regex: searchTerm, $options: 'i'}});
+    res.status(200).json({
+      success: true,
+      messsage: "successfully reitrived",
+      events
+    })
+  }
+  catch(err){
     res.status(500).json({
       success: false,
       message: err.message

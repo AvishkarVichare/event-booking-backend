@@ -27,7 +27,14 @@ const instance = new Razorpay({
 app.use('/api/v1/event', eventRouter);
 app.use('/api/v1/u', userRouter);
 app.get("/images/:imageName", (req, res) => {
+  try{
   res.sendFile(path.join(__dirname, "public", "images", req.params.imageName));
+  }catch(err){
+    res.json({
+      success: false,
+      message:err.message
+    })
+  }
 });
 app.post('/api/v1/orders',async(req, res)=>{
   console.log(instance)
