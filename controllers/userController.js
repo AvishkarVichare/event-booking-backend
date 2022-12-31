@@ -127,10 +127,12 @@ exports.signUpAdminController = async (req, res) => {
     if(!email.includes("teacher"))
       throw new Error("Only teachers can login")
 
+    let generatedUsername = name.replace(/\s/g, "").toLowerCase()
+    
     const user = await User.create({
       name,
       email,
-      username: "N/A",
+      username: generatedUsername,
       password: secretPassword,
       phone: 0,
       div: "N/A",
