@@ -157,16 +157,27 @@ exports.signUpAdminController = async (req, res) => {
     });
   }
 }
-// exports.editUserController = async (req, res) => {
-//   try {
-//     const updates = req.body;
 
-//     await User.findByIdAndUpdate(req.user.id, updates)
+exports.editUserController = async (req, res) => {
+  try {
+    const updates = req.body;
 
-//   } catch (err) {
-//     res.status(500).json({
-//       success: false,
-//       message: err.message
-//     });
-//   }
-// }
+    const user = await User.findByIdAndUpdate(req.user.id, updates, {
+      new: true, // Return the updated user
+    });
+
+    if(!user)
+      throw new Error("no user found")
+
+    res.json({
+      success: true,
+      user
+    })
+
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  }
+}
