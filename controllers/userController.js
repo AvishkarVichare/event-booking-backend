@@ -6,7 +6,7 @@ const Event = require('../models/Events.Shcema');
 
 exports.signUpUserController = async (req, res) => {
   try {
-    const { name, email, username, password, phone, div, studentid, branch } = req.body;
+    const { name, email, username, password, phone, div, studentid, branch, collegname } = req.body;
 
     const salt = await bcrypt.genSalt(10);
     const secretPassword = await bcrypt.hash(password, salt);
@@ -19,7 +19,8 @@ exports.signUpUserController = async (req, res) => {
       phone,
       div,
       studentid,
-      branch
+      branch,
+      collegname
 
 
     });
@@ -89,25 +90,25 @@ exports.getUserController = async (req, res) => {
 
 }
 
-exports.getUsersWhoBookedEvent = async(req, res)=>{
-  try{
-    if(req.user.role!=='admin')
-    throw new Error("only admin can access");
+exports.getUsersWhoBookedEvent = async (req, res) => {
+  try {
+    if (req.user.role !== 'admin')
+      throw new Error("only admin can access");
 
     const event = await Event.findById(req.params.eid).populate('bookedUsers')
-        // console.log(event.bookedUsers); 
+    // console.log(event.bookedUsers); 
 
-        // console.log("first", event)
+    // console.log("first", event)
 
-        res.json({
-          success:true,
-          message: "users retrived",
-          users: event.bookedUsers
-        })
-      
-    
+    res.json({
+      success: true,
+      message: "users retrived",
+      users: event.bookedUsers
+    })
+
+
   }
-  catch(err){
+  catch (err) {
     res.status(500).json({
       success: false,
       message: err.message
@@ -115,3 +116,55 @@ exports.getUsersWhoBookedEvent = async(req, res)=>{
   }
 
 }
+
+
+exports.signUpAdminController = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    const salt = await bcrypt.genSalt(10)
+    const secretPassword = await bcrypt.hash(password, salt);
+
+    if(!email.includes("teacher"))
+      throw new Error("Only teachers can login")
+
+    const user = await User.create({
+      name,
+      email,
+      username: "N/A",
+      password: secretPassword,
+      phone: 0,
+      div: "N/A",
+      studentid: "N/A",
+      branch: "N/A",
+      collegname: "N/A",
+      role: "admin"
+
+    });
+
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET);
+
+
+    res.json({
+      success: true,
+      token
+    })
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  }
+}
+// exports.editUserController = async (req, res) => {
+//   try {
+//     const updates = req.body;
+
+//     await User.findByIdAndUpdate(req.user.id, updates)
+
+//   } catch (err) {
+//     res.status(500).json({
+//       success: false,
+//       message: err.message
+//     });
+//   }
+// }
