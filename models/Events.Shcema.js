@@ -37,6 +37,10 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  eventMode: {
+    type: String,
+    required: true
+  },
   bookedUsers: [{
     type: mongoose.Types.ObjectId,
     ref: 'User'

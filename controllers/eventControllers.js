@@ -12,7 +12,7 @@ exports.createEventController = async (req, res) => {
       data: req.file.path
     }
 
-    const { eventName, eventHost, eventDescription, eventBranch, eventDate, eventTime, eventVenue, eventType, eventPrice } = req.body;
+    const { eventName, eventHost, eventDescription, eventBranch, eventDate, eventTime, eventVenue, eventType, eventPrice, eventMode } = req.body;
 
 
 
@@ -30,6 +30,7 @@ exports.createEventController = async (req, res) => {
       eventTime,
       eventVenue,
       eventType,
+      eventMode,
       eventPrice,
       image
     });
